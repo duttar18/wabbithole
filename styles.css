@@ -1,0 +1,38 @@
+body {
+    background-color: #5EB2FC;
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 20px;
+    height: 200px;
+    width: 400px;
+    border-radius: 50px;
+}
+.prompt {
+    color: #FFFFFF;
+    margin: 5px 0px 10px 0px;
+}
+.suggestion {
+    color: #404040;
+}
+#suggestions {
+    margin-left: 15px;
+}
+nav {
+    text-align: right;
+    margin-top: 15px;
+}
+.nav-link {
+    color: #404040;
+    text-decoration: none;
+}
+.buttonOn {
+  background-color: #00FF00;
+  height: 20px;
+  width: 20px;
+  border-radius: 20px;
+}
+.buttonOff {
+  background-color: #FF0000;
+  height: 20px;
+  width: 20px;
+  border-radius: 20px;
+}
