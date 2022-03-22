@@ -1,0 +1,11 @@
+{
+    "name": "Wabbithole",
+    "version": "1.0.0",
+    "description": "Empowering Curiosity through Wikipedia",
+    "manifest_version": 3,
+    "author": "Raul Dutta, Nathan Wong, Jack Weitze",
+    "action":{
+        "default_popup": "index.html",
+        "default_title": "Wabbithole"
+    }
+}
