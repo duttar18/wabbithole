@@ -18,7 +18,7 @@ stop_words = set(stopwords.words("english"))
 cache = {}
 doc_freq_cache = None
 
-@app.route('/rankedResults')
+@app.route('/rankedResults', methods=['GET','POST'])
 def index():
     print("called ranked results")
     data = request.get_json()
