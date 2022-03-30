@@ -63,12 +63,25 @@ def parse_wiki_api(link, stop_words, get_text=False):
     else:
         redirect = None
     links = []
+
+    blocklist = [
+        "Main_Page",
+        "Help:",
+        "Special:",
+        "Portal:",
+        "Talk:",
+        "Template:",
+    ]
+
     for l in parse_links:
+        #if l['*'].
+        if any(bad_prefix in l['*'] for bad_prefix in blocklist):
+            continue
         links.append(l['*'])
 
     if get_text:
         words = DATA["parse"]["wikitext"]["*"]
-        words = nltk_pipeline(words,stop_words)
+        words = nltk_pipeline(words, stop_words)
         return links, pageid, redirect, words
     return links, pageid, redirect
 
@@ -110,6 +123,7 @@ def score_coupling_similarity(user_history, target, cache, doc_freq_cache, stop_
     if results is None:
         # likely that this link doesn't exist
         return None
+        
     links, pageid, redirect = results
     if redirect is not None and redirect in user_history.already_visited_pages:
         # don't recommend this page, a redirected variant was in the user history
@@ -130,31 +144,35 @@ def score_coupling_similarity(user_history, target, cache, doc_freq_cache, stop_
     avg_doc_len = 50 # estimate?
     for link, count in target_outgoing.items():
         query_count = user_history.outgoing_links[link]
+
         if count == 0 or query_count == 0:
             continue
         #page_name = link.split("/wiki/")[1]
-        doc_freq = 100 #doc_freq_cache(page_name, page_name)
+        doc_freq = 0.001 if link not in doc_freq_cache else doc_freq_cache(link, link)
 
         norm_qtf = (k3+1)*query_count / (k3 + query_count)
         norm_tf = count * (k1 + 1) / (count + k1*((1-b)+b*(doc_len/avg_doc_len)))
         tf = norm_tf * norm_qtf
 
-        num_links_on_wiki = 1
-        idf = 1 #np.log(num_links_on_wiki / (doc_freq+1))
+        #num_links_on_wiki = 10e7
+        log_num_links_on_wiki = 6 * np.log(10)
+        idf = log_num_links_on_wiki - doc_freq
         score += tf * idf
-    #union = sum(v for v in target_outgoing.values()) + sum(v for v in user_history.outgoing_links.values())
-
+    # union = sum(v for v in target_outgoing.values()) + sum(v for v in user_history.outgoing_links.values())
+    # adjust score to favor links with more content
+    score += sum(v for v in target_outgoing.values())
     return score
 
 def compute_outgoing_scores_baseline(user_history, stop_words):
     # composite score_link_similarity and score_link_text_similarity
     # (todo: this filters scores, will do re-ranking with coupling similarity, re-ranking with deeper searches, etc)
-    weight = 0.5 # to be tuned
+    weight = 0.005 # to be tuned
     outgoing_scores = dict()
     for link in user_history.outgoing_links:
         link_sim = score_link_similarity(user_history, link)
         text_sim = score_link_text_similarity(user_history, link, stop_words)
         outgoing_scores[link] = link_sim + weight * text_sim
+        #print(link_sim, weight*text_sim, link)
     return outgoing_scores
 
 def rerank_with_coupling(user_history, baseline_scores, num_rerank, cache, doc_freq_cache, stop_words):
@@ -163,5 +181,6 @@ def rerank_with_coupling(user_history, baseline_scores, num_rerank, cache, doc_f
         new_score = score_coupling_similarity(user_history, target, cache, doc_freq_cache, stop_words)
         if new_score is None:
             continue
-        new_rankings[target] = new_score*5 + score
+        #print(new_score * 0.1, score, target)
+        new_rankings[target] = new_score*0.1 + score
     return new_rankings

@@ -5,7 +5,7 @@ async function fetchData() {
             "https://en.wikipedia.org/wiki/Value_function",
             "https://en.wikipedia.org/wiki/Optimal_control"
         ],
-        "numResults": 5
+        "numResults": 10
       }
     const data = await fetch("http://127.0.0.1:5000/rankedResults", {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
