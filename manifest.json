@@ -7,5 +7,14 @@
     "action":{
         "default_popup": "index.html",
         "default_title": "Wabbithole"
+    },
+    "permissions": [
+        "tabs",
+        "storage",
+        "webNavigation"
+    ],
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
     }
 }
