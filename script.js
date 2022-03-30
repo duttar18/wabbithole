@@ -64,7 +64,7 @@ async function fetchData() {
 
   for(suggestion of ranked_recs["results"]){
       var p = document.createElement('div');
-      p.setAttribute("id", "suggestion_div");
+      p.setAttribute("class", "suggestion_div");
       p.innerHTML = '<a class="suggestion" href='+suggestion["link"]+' target="_blank">'+suggestion["name"]+'</a>';
       suggestions.appendChild(p);
   }

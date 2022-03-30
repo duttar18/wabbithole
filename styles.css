@@ -1,12 +1,13 @@
 body {
-    background: none;
-    /*background-color: #ffffff;*/
-    font-family: 'Source Sans Pro'; /*'Josefin Sans', sans-serif;*/
+    background: #ffffff;
+    font-family: 'Arial'; /*'Source Sans Pro'; 'Josefin Sans', sans-serif;*/
     font-size: 20px;
     /* height: 200px; */
     width: 500px;
     border-radius: 50px;
+    margin: 0;
     padding-bottom: 20px;
+    border-color: rgb(162, 169, 177);
 }
 
 .prompt {
@@ -14,17 +15,23 @@ body {
     margin: 5px 0px 10px 0px;
 }
 
-.suggestion_div {
-}
 .suggestion {
     color: #0645ad;
     font-size: 20px;
+}
+
+.recArea {
+    padding: 10px;
 }
 
 .suggestion:hover {
     color: #0646add7;
     transition: ease .2s;
     text-decoration: underline;
+}
+
+.suggestion_div {
+    margin-bottom: 10px;
 }
 
 a {
@@ -39,8 +46,9 @@ a:hover {
     margin-left: 15px;
 }
 nav {
+    background-color: rgb(248, 249, 250);
     text-align: right;
-    margin-top: 15px;
+    padding: 8px;
 }
 .nav-link {
     color: #404040;
