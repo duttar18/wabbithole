@@ -37,10 +37,14 @@ async function fetchData() {
 
 
   const wabbit = await readLocalStorage()
+  let trunc_user_history = wabbit["user_history"]
+  trunc_user_history = trunc_user_history.slice(Math.max(trunc_user_history.length - 5, 0))
+  console.log(trunc_user_history)
   var send_data = {
-    "user_history": wabbit["user_history"],
+    "user_history": trunc_user_history,
     "numResults": 5
   }
+
   const data = await fetch("http://127.0.0.1:5000/rankedResults", {
   method: 'POST', // *GET, POST, PUT, DELETE, etc.
   mode: 'cors', // no-cors, *cors, same-origin
@@ -56,9 +60,11 @@ async function fetchData() {
  
   const ranked_recs = await data.json()
   //d = data.json()
-  suggestions = document.getElementById("suggestions")
+  document.getElementById("loading").style.display = 'none'
+
   for(suggestion of ranked_recs["results"]){
       var p = document.createElement('div');
+      p.setAttribute("id", "suggestion_div");
       p.innerHTML = '<a class="suggestion" href='+suggestion["link"]+' target="_blank">'+suggestion["name"]+'</a>';
       suggestions.appendChild(p);
   }
