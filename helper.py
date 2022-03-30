@@ -71,6 +71,8 @@ def parse_wiki_api(link, stop_words, get_text=False):
         "Portal:",
         "Talk:",
         "Template:",
+        "Template talk:",
+        "User talk:"
     ]
 
     for l in parse_links:
