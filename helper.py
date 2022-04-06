@@ -36,6 +36,7 @@ def wiki_link_from_title(wiki_title, link_base="https://en.wikipedia.org/wiki/")
     return link
 
 def parse_wiki_api(link, stop_words, get_text=False):
+    link = urllib.parse.unquote(link)
     S = requests.Session()
 
     URL = "https://en.wikipedia.org/w/api.php"
