@@ -171,7 +171,7 @@ def compute_outgoing_scores_baseline(user_history, stop_words):
     # (todo: this filters scores, will do re-ranking with coupling similarity, re-ranking with deeper searches, etc)
     weight = 0.005 # to be tuned
     outgoing_scores = dict()
-    for link in user_history.outgoing_links:
+    for link in user_history.rec_links:
         link_sim = score_link_similarity(user_history, link)
         text_sim = score_link_text_similarity(user_history, link, stop_words)
         outgoing_scores[link] = link_sim + weight * text_sim

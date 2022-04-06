@@ -23,7 +23,13 @@ class UserHistory:
         #self.ingoing_links = set()
         
         self.words = Counter()
-        for link in set(user_history):
+
+        visited = set()
+        for link in user_history:
+            if link in visited:
+                continue
+            else:
+                visited.add(link)
             link = urllib.parse.unquote(link)
             out_links, pageid, redirect, words = parse_wiki_api(link, stop_words, get_text=True)
             if redirect is not None:
@@ -34,11 +40,14 @@ class UserHistory:
             self.words.update(words)
             self.outgoing_links.update(set(out_links))
             #self.ingoing_links.update(parse_wiki_ingoing(link))
-
+        # recommend links based on the current page's out_links
+        self.rec_links = Counter(set(out_links))
         # remove self-loops
         for page in self.already_visited_pages:
             if page in self.outgoing_links:
                 del self.outgoing_links[page]
+            if page in self.rec_links:
+                del self.rec_links[page]
         #self.ingoing_links -= already_visited_pages
         
         outgoing_links_list = list(self.outgoing_links.values())

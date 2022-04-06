@@ -37,7 +37,7 @@ def index():
     data = request.get_json(force=True)
     uh = [wiki_title_from_link(link) for link in data["user_history"]]
     user_history = UserHistory(uh,stop_words)
-    baseline_scores = compute_outgoing_scores_baseline(user_history,stop_words)
+    baseline_scores = compute_outgoing_scores_baseline(user_history, stop_words)
     sorted_baseline_scores = [(k, v) for k, v in sorted(baseline_scores.items(), reverse=True, key=lambda item: item[1])]
     final_results = rerank_with_coupling(
         user_history, 
