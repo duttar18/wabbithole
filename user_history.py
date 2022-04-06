@@ -24,6 +24,7 @@ class UserHistory:
         
         self.words = Counter()
         for link in set(user_history):
+            link = urllib.parse.unquote(link)
             out_links, pageid, redirect, words = parse_wiki_api(link, stop_words, get_text=True)
             if redirect is not None:
                 self.already_visited_pages.add(redirect)

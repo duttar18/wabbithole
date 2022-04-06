@@ -7,7 +7,7 @@
 
 const readLocalStorage = async (key) => {
   return new Promise((resolve, reject) => {
-    chrome.storage.sync.get(['wabbit'], function (result) {
+    chrome.storage.local.get(['wabbit'], function (result) {
       if (result['wabbit'] === undefined) {
         resolve({
           "user_history": []
@@ -61,7 +61,7 @@ async function fetchData() {
   const ranked_recs = await data.json()
   //d = data.json()
   document.getElementById("loading").style.display = 'none'
-
+  suggestions = document.getElementById("suggestions")
   for(suggestion of ranked_recs["results"]){
       var p = document.createElement('div');
       p.setAttribute("class", "suggestion_div");

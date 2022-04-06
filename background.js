@@ -12,17 +12,17 @@ async function getCurrentTab() {
     var wabbit = {
         "user_history": []
     }
-    chrome.storage.sync.get(['wabbit'], function(items) {
+    chrome.storage.local.get(['wabbit'], function(items) {
         // console.log("background")
         if (items.wabbit){
           var user_history = JSON.parse(items.wabbit)["user_history"];
           user_history.push(tab.url);
           wabbit["user_history"] = user_history
-          chrome.storage.sync.set({'wabbit': JSON.stringify(wabbit)});
+          chrome.storage.local.set({'wabbit': JSON.stringify(wabbit)});
         }
         else {
           wabbit.user_history.push(tab.url)
-          chrome.storage.sync.set({'wabbit': JSON.stringify(wabbit)});
+          chrome.storage.local.set({'wabbit': JSON.stringify(wabbit)});
         }
         // console.log(wabbit["user_history"])
       });
