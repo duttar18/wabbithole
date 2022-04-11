@@ -34,8 +34,8 @@ class UserHistory:
             out_links, pageid, redirect, words = parse_wiki_api(link, stop_words, get_text=True)
             if redirect is not None:
                 self.already_visited_pages.add(redirect)
-            else:
-                self.already_visited_pages.add(link)
+
+            self.already_visited_pages.add(link)
 
             self.words.update(words)
             self.outgoing_links.update(set(out_links))
@@ -43,6 +43,7 @@ class UserHistory:
         # recommend links based on the current page's out_links
         self.rec_links = Counter(set(out_links))
         # remove self-loops
+        self.already_visited_pages = set(l.split("#")[0] for l in self.already_visited_pages)
         for page in self.already_visited_pages:
             if page in self.outgoing_links:
                 del self.outgoing_links[page]

@@ -128,6 +128,8 @@ def score_coupling_similarity(user_history, target, cache, doc_freq_cache, stop_
         return None
         
     links, pageid, redirect = results
+    if redirect is not None:
+        print(target, redirect)
     if redirect is not None and redirect in user_history.already_visited_pages:
         # don't recommend this page, a redirected variant was in the user history
         # (only way to resolve redirects from outgoing-links is through this api call)
