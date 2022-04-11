@@ -7,7 +7,6 @@
 
 const readLocalStorage = async (key) => {
   return new Promise((resolve, reject) => {
-    console.log(chrome.storage)
     chrome.storage.local.get(['wabbit'], function (result) {
       if (result['wabbit'] === undefined) {
         resolve({
@@ -23,16 +22,16 @@ const readLocalStorage = async (key) => {
 };
 
 async function toggleUserHistorySetting() {
-
+  console.log("Here")
   const wabbit = await readLocalStorage()
   wabbit["user_history_setting"] = !wabbit["user_history_setting"]
   chrome.storage.local.set({'wabbit': JSON.stringify(wabbit)});
-
+  console.log(wabbit["user_history_setting"])
   if (wabbit["user_history_setting"]){
-    document.getElementById("userHistoryButton").classList.remove('userHistoryButtonOn');
+    document.getElementById("userHistoryButton").classList.add('userHistoryButtonOn');
   }
   else {
-    document.getElementById("userHistoryButton").classList.add('userHistoryButtonOn');
+    document.getElementById("userHistoryButton").classList.remove('userHistoryButtonOn');
   }
 }
 
@@ -46,10 +45,22 @@ async function fetchData() {
   const wabbit = await readLocalStorage()
   if (!wabbit["user_history_setting"]) {
     wabbit["user_history"] = []
+    console.log("user history setting turned off")
   }
+  else{
+    console.log("User history turned on")
+  }
+
+  
+
+
+
+
+
+
   let trunc_user_history = wabbit["user_history"]
   trunc_user_history = trunc_user_history.slice(Math.max(trunc_user_history.length - 5, 0))
-  console.log(trunc_user_history)
+  
   var send_data = {
     "user_history": trunc_user_history,
     "numResults": 5
@@ -70,8 +81,11 @@ async function fetchData() {
 
   const ranked_recs = await data.json()
   //d = data.json()
-  document.getElementById("loading").style.display = 'none'
-
+  var loading = document.getElementById("loading")
+  if (loading){
+    loading.style.display = 'none'
+  }
+  suggestions = document.getElementById("suggestions")
   for(suggestion of ranked_recs["results"]){
       var p = document.createElement('div');
       p.setAttribute("class", "suggestion_div");

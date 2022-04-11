@@ -15,7 +15,7 @@ import nltk
 from nltk.corpus import stopwords
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 
 stop_words = set(stopwords.words("english"))
 

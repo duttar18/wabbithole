@@ -10,18 +10,27 @@ async function getCurrentTab() {
     let queryOptions = { active: true, currentWindow: true };
     let [tab] = await chrome.tabs.query(queryOptions);
     var wabbit = {
-        "user_history": []
+        "user_history": [],
+        "timestamps": [],
     }
     chrome.storage.local.get(['wabbit'], function(items) {
         // console.log("background")
         if (items.wabbit){
+          // var timestamps = JSON.parse(items.wabbit)["timestamps"];
+          // now = new Date();
+          
+          // wabbit["timestamps"] = timestamps
+
+
           var user_history = JSON.parse(items.wabbit)["user_history"];
           user_history.push(tab.url);
           wabbit["user_history"] = user_history
+
           chrome.storage.local.set({'wabbit': JSON.stringify(wabbit)});
         }
         else {
           wabbit.user_history.push(tab.url)
+          // wabbit.timestamps.push([[0,new Date()]])
           chrome.storage.local.set({'wabbit': JSON.stringify(wabbit)});
         }
         // console.log(wabbit["user_history"])
