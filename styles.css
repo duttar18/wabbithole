@@ -127,7 +127,8 @@ nav-link:hover {
 }
 
 .groupCard {
-    margin-top: 20px;
+    margin-top: 10px;
     padding: 20px;
     background-color: #eee;
+    border-radius: 25px;
 }

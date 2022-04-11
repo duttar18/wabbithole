@@ -35,7 +35,11 @@ print("running!")
 @app.route('/rankedResults', methods=['GET','POST'])
 def index():
     data = request.get_json(force=True)
-    uh = [wiki_title_from_link(link) for link in data["user_history"]]
+    try:
+        uh = [wiki_title_from_link(link) for link in data["user_history"]]
+    except:
+        response = flask.jsonify({'results': []})
+        return response
     # catch empty user_history:
     if len(uh) == 0:
         response = flask.jsonify({'results': []})

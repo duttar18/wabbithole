@@ -10,6 +10,7 @@ const readLocalStorage = async (key) => {
         resolve({
           "user_history": [],
           "user_history_setting": false,
+          "timestamps": []
         })
       } else {
         const wabbit = JSON.parse(result['wabbit'])
@@ -23,7 +24,12 @@ async function getHistory() {
   const wabbit = await readLocalStorage()
   histSuggestions = document.getElementById("histSuggestions")
   var timestamps = wabbit["timestamps"]
+  console.log(timestamps)
   for(group of timestamps.reverse()){
+      if (group == null) {
+        continue;
+      }
+      console.log(group)
       var p = document.createElement('div');
       p.setAttribute("class", "groupCard");
       var b = document.createElement('button');
@@ -31,30 +37,43 @@ async function getHistory() {
       b.classList.add("histButton");
       var button_history = []
       for(i of group){
-        button_history.push(wabbit.user_history[i[0]])
+        button_history.push(i[1])
       }
-      console.log(button_history)
-      button_history = button_history.reverse()
-      console.log(button_history)
       button_history = removeDuplicates(button_history)
-      console.log(button_history)
       b.id = button_history.join(" ")
-      console.log(button_history)
-      b.addEventListener("click", function() {
-        var user_history = wabbit.user_history 
+
+      b.addEventListener("click", async function() {
+        var button_wabbit = await readLocalStorage()
+        var timestamps = button_wabbit.timestamps 
         // user_history = user_history.concat(button_history)
-        user_history = user_history.concat(this.id.split(" "))
-        wabbit.user_history=user_history
-        chrome.storage.local.set({'wabbit': JSON.stringify(wabbit)})
+        button_history = this.id.split(" ")
+        console.log(button_history)
+        new_group = button_history.map(wikiLink =>
+          [0, wikiLink, new Date()]
+        )
+        console.log(new_group)
+        console.log(timestamps)
+        timestamps.push(new_group)
+        button_wabbit.timestamps = timestamps
+        chrome.storage.local.set({'wabbit': JSON.stringify(button_wabbit)})
+        var loading = document.getElementById("loading")
+        loading.style.display = ''
+        suggestions = document.getElementById("suggestions")
+        while (suggestions.firstChild) {
+          suggestions.removeChild(suggestions.firstChild)
+        }
+        await getHistory()
+        await fetchData()
       });
+
       p.appendChild(b)
-      for(i of group){
+      for(link of button_history.reverse()){
         var o = document.createElement('div');
         o.setAttribute("class", "link");
-        title_unform = wabbit.user_history[i[0]].substring(30)
+        title_unform = link.substring(30)
         title = title_unform.replaceAll("_", " ")
         title = title.split("#")[0]
-        o.innerHTML = '<a class="suggestion" href='+wabbit.user_history[i[0]]+' target="_blank">'+title+'</a>';
+        o.innerHTML = '<a class="suggestion" href='+link+' target="_blank">'+title+'</a>';
         p.appendChild(o);
       }
       histSuggestions.appendChild(p)
@@ -62,11 +81,9 @@ async function getHistory() {
 }
 
 async function toggleUserHistorySetting() {
-  console.log("Here")
   const wabbit = await readLocalStorage()
   wabbit["user_history_setting"] = !wabbit["user_history_setting"]
   chrome.storage.local.set({'wabbit': JSON.stringify(wabbit)});
-  console.log(wabbit["user_history_setting"])
   if (wabbit["user_history_setting"]){
     document.getElementById("userHistoryButton").classList.add('userHistoryButtonOn');
   }
@@ -76,6 +93,7 @@ async function toggleUserHistorySetting() {
 }
 
 async function fetchData() {
+
   var userHistoryButton = document.getElementById("userHistoryButton")
   if (userHistoryButton){
     userHistoryButton.addEventListener("click", toggleUserHistorySetting);
@@ -83,12 +101,22 @@ async function fetchData() {
 
 
   const wabbit = await readLocalStorage()
-
-  let user_history = wabbit["user_history"]
-  let trunc_user_history = user_history.slice(Math.max(user_history.length - 5, 0))
-  console.log(trunc_user_history)
+  console.log(wabbit["user_history"])
+  //let user_history = wabbit["user_history"]
+  var groups = wabbit["timestamps"]
+  groups = groups.filter(function(curElement) {
+    return curElement !== null
+  })
+  console.log(groups)
+  var user_history2 = groups[groups.length - 1]
+  var user_history = user_history2.map(function(curElement) {
+    return curElement[1];
+  })
+  console.log(user_history)
+  //let trunc_user_history = user_history.slice(Math.max(user_history.length - 5, 0))
+  
   var send_data = {
-    "user_history": trunc_user_history,
+    "user_history": user_history,
     "numResults": 5
   }
 
@@ -114,6 +142,7 @@ async function fetchData() {
     loading.style.display = 'none'
   }
   suggestions = document.getElementById("suggestions")
+
   for(suggestion of ranked_recs["results"]){
       var p = document.createElement('div');
       p.setAttribute("class", "suggestion_div");
