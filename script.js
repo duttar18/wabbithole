@@ -10,7 +10,8 @@ const readLocalStorage = async (key) => {
     chrome.storage.local.get(['wabbit'], function (result) {
       if (result['wabbit'] === undefined) {
         resolve({
-          "user_history": []
+          "user_history": [],
+          "user_history_setting": false,
         })
       } else {
         const wabbit = JSON.parse(result['wabbit'])
@@ -34,35 +35,56 @@ async function toggleUserHistorySetting() {
   }
 }
 
-
 async function fetchData() {
+  var userHistoryButton = document.getElementById("userHistoryButton")
+  if (userHistoryButton){
+    userHistoryButton.addEventListener("click", toggleUserHistorySetting);
+  }
 
 
   const wabbit = await readLocalStorage()
+  if (!wabbit["user_history_setting"]) {
+    wabbit["user_history"] = []
+    console.log("user history setting turned off")
+  }
+  else{
+    console.log("User history turned on")
+  }
+
+  
+
+
+
+
+
+
   let trunc_user_history = wabbit["user_history"]
   trunc_user_history = trunc_user_history.slice(Math.max(trunc_user_history.length - 5, 0))
-  console.log(trunc_user_history)
+  
   var send_data = {
     "user_history": trunc_user_history,
     "numResults": 5
   }
 
   const data = await fetch("http://127.0.0.1:5000/rankedResults", {
-  method: 'POST', // *GET, POST, PUT, DELETE, etc.
-  mode: 'cors', // no-cors, *cors, same-origin
-  // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-  // credentials: 'same-origin', // include, *same-origin, omit
-  headers: {
-      'Content-Type': 'application/json'
-  },
-    redirect: 'follow', // manual, *follow, error
-    referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-    body: JSON.stringify(send_data) // body data type must match "Content-Type" header
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, *cors, same-origin
+    // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    // credentials: 'same-origin', // include, *same-origin, omit
+    headers: {
+        'Content-Type': 'application/json'
+    },
+      redirect: 'follow', // manual, *follow, error
+      referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      body: JSON.stringify(send_data) // body data type must match "Content-Type" header
   });
- 
+
   const ranked_recs = await data.json()
   //d = data.json()
-  document.getElementById("loading").style.display = 'none'
+  var loading = document.getElementById("loading")
+  if (loading){
+    loading.style.display = 'none'
+  }
   suggestions = document.getElementById("suggestions")
   for(suggestion of ranked_recs["results"]){
       var p = document.createElement('div');

@@ -106,14 +106,14 @@ nav-link:hover {
     transition: ease .2s;
     text-decoration: underline;
 }
-.buttonOn {
-  background-color: #00FF00;
+#userHistoryButton {
+  background-color: #FF0000;
   height: 20px;
   width: 20px;
   border-radius: 20px;
 }
-.buttonOff {
-  background-color: #FF0000;
+.userHistoryButtonOn {
+  background-color: #00FF00;
   height: 20px;
   width: 20px;
   border-radius: 20px;
