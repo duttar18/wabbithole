@@ -20,20 +20,22 @@ const readLocalStorage = async (key) => {
   });
 };
 
+async function toggleUserHistorySetting() {
+  console.log("Here")
+  const wabbit = await readLocalStorage()
+  wabbit["user_history_setting"] = !wabbit["user_history_setting"]
+  chrome.storage.local.set({'wabbit': JSON.stringify(wabbit)});
+  console.log(wabbit["user_history_setting"])
+  if (wabbit["user_history_setting"]){
+    document.getElementById("userHistoryButton").classList.add('userHistoryButtonOn');
+  }
+  else {
+    document.getElementById("userHistoryButton").classList.remove('userHistoryButtonOn');
+  }
+}
+
+
 async function fetchData() {
-  // var curr_page = "https://wiki"
-  // chrome.storage.sync.get(['wabbit'], function(items) {
-  //   if (items.wabbit){
-  //     wabbit = JSON.parse(items.wabbit)["user_history"];
-  //     user_history.push(curr_page);
-  //     wabbit["user_history"] = user_history
-  //     chrome.storage.sync.set({'wabbit': JSON.stringify(wabbit)});
-  //   }
-  //   else {
-  //     wabbit.user_history.push(curr_page)
-  //     chrome.storage.sync.set({'wabbit': JSON.stringify(wabbit)});
-  //   }
-  // });
 
 
   const wabbit = await readLocalStorage()
@@ -68,6 +70,18 @@ async function fetchData() {
       p.innerHTML = '<a class="suggestion" href='+suggestion["link"]+' target="_blank">'+suggestion["name"]+'</a>';
       suggestions.appendChild(p);
   }
+
+  histSuggestions = document.getElementById("histSuggestions")
+  console.log(trunc_user_history)
+  for(suggestion of trunc_user_history.reverse()){
+      var p = document.createElement('div');
+      p.setAttribute("class", "suggestion_div");
+      title_unform = suggestion.substring(30)
+      title = title_unform.replaceAll("_", " ")
+      title = title.split("#")[0]
+      p.innerHTML = '<a class="suggestion" href='+suggestion+' target="_blank">'+title+'</a>';
+      histSuggestions.appendChild(p);
+  }  
 }
 var get = function (key) {
   return window.localStorage ? window.localStorage[key] : null;
@@ -86,5 +100,32 @@ function toggleUserHistory(item){
     }
 }
 
+var hist_button = document.getElementById("histButton")
+
+hist_button.addEventListener('click', function() {
+  this.classList.toggle("active");
+  var content = document.getElementById("histSuggestions");
+  if (content.style.display === "block") {
+    content.style.display = "none";
+  } else {
+    content.style.display = "block";
+  }
+});
+
+
+var settings_button = document.getElementById("settingsButton")
+
+settings_button.addEventListener('click', function() {
+  this.classList.toggle("active");
+  var content = document.getElementById("settings");
+  if (content.style.display === "block") {
+    content.style.display = "none";
+  } else {
+    content.style.display = "block";
+  }
+
+});
+
 fetchData();
 document.getElementById("userHistoryButton").addEventListener("click", toggleUserHistory);
+
