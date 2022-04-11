@@ -15,7 +15,7 @@ import nltk
 from nltk.corpus import stopwords
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 
 stop_words = set(stopwords.words("english"))
 
@@ -48,7 +48,7 @@ def index():
         stop_words)
     sorted_final_results = [k for k, v in sorted(final_results.items(), reverse=True, key=lambda item: item[1])]
     sorted_final_results = [{"link": wiki_link_from_title(wiki_title), "name":wiki_title} for wiki_title in sorted_final_results[:data["numResults"]]]
-    
+
     #return json.dumps(sorted_final_results)
     response = flask.jsonify({'results': sorted_final_results})
     return response
