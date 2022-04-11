@@ -62,12 +62,24 @@ async function fetchData() {
   //d = data.json()
   document.getElementById("loading").style.display = 'none'
   suggestions = document.getElementById("suggestions")
+  console.log(ranked_recs["results"])
   for(suggestion of ranked_recs["results"]){
       var p = document.createElement('div');
       p.setAttribute("class", "suggestion_div");
       p.innerHTML = '<a class="suggestion" href='+suggestion["link"]+' target="_blank">'+suggestion["name"]+'</a>';
       suggestions.appendChild(p);
   }
+
+  histSuggestions = document.getElementById("histSuggestions")
+  console.log(trunc_user_history)
+  for(suggestion of trunc_user_history){
+      var p = document.createElement('div');
+      p.setAttribute("class", "suggestion_div");
+      title_unform = suggestion.substring(30)
+      title = title_unform.replaceAll("_", " ")
+      p.innerHTML = '<a class="suggestion" href='+suggestion+' target="_blank">'+title+'</a>';
+      histSuggestions.appendChild(p);
+  }  
 }
 var get = function (key) {
   return window.localStorage ? window.localStorage[key] : null;
