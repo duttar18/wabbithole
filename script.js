@@ -54,12 +54,13 @@ async function fetchData() {
 
   const data = await fetch("http://127.0.0.1:5000/rankedResults", {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    credentials: 'include',
     mode: 'cors', // no-cors, *cors, same-origin
     // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
     // credentials: 'same-origin', // include, *same-origin, omit
     headers: {
         'Content-Type': 'application/json',
-        'Origin': 'https://127.0.0.1:5000'
+        'Origin': 'http://127.0.0.1:5000',
     },
       redirect: 'follow', // manual, *follow, error
       referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
@@ -80,17 +81,50 @@ async function fetchData() {
       suggestions.appendChild(p);
   }
 
+  // histSuggestions = document.getElementById("histSuggestions")
+  // console.log(trunc_user_history)
+  // for(suggestion of trunc_user_history.reverse()){
+  //     var p = document.createElement('div');
+  //     p.setAttribute("class", "suggestion_div");
+  //     title_unform = suggestion.substring(30)
+  //     title = title_unform.replaceAll("_", " ")
+  //     title = title.split("#")[0]
+  //     p.innerHTML = '<a class="suggestion" href='+suggestion+' target="_blank">'+title+'</a>';
+  //     histSuggestions.appendChild(p);
+  // }  
   histSuggestions = document.getElementById("histSuggestions")
-  console.log(trunc_user_history)
-  for(suggestion of trunc_user_history.reverse()){
+  var timestamps = wabbit["timestamps"]
+  for(group of timestamps.reverse()){
       var p = document.createElement('div');
-      p.setAttribute("class", "suggestion_div");
-      title_unform = suggestion.substring(30)
-      title = title_unform.replaceAll("_", " ")
-      title = title.split("#")[0]
-      p.innerHTML = '<a class="suggestion" href='+suggestion+' target="_blank">'+title+'</a>';
-      histSuggestions.appendChild(p);
-  }  
+      p.setAttribute("class", "groupCard");
+      var b = document.createElement('button');
+      b.appendChild(document.createTextNode('set as history'));
+      b.classList.add("histButton");
+      var button_history = []
+      for(i of group){
+        button_history.push(wabbit.user_history[i[0]])
+      }
+      b.id = button_history.join(" ")
+      console.log(button_history)
+      b.addEventListener("click", function() {
+        var user_history = wabbit.user_history 
+        // user_history = user_history.concat(button_history)
+        user_history = user_history.concat(this.id.split(" "))
+        wabbit.user_history=user_history
+        chrome.storage.local.set({'wabbit': JSON.stringify(wabbit)})
+      });
+      p.appendChild(b)
+      for(i of group){
+        var o = document.createElement('div');
+        o.setAttribute("class", "link");
+        title_unform = wabbit.user_history[i[0]].substring(30)
+        title = title_unform.replaceAll("_", " ")
+        title = title.split("#")[0]
+        o.innerHTML = '<a class="suggestion" href='+wabbit.user_history[i[0]]+' target="_blank">'+title+'</a>';
+        p.appendChild(o);
+      }
+      histSuggestions.appendChild(p)
+  }
 }
 var get = function (key) {
   return window.localStorage ? window.localStorage[key] : null;
