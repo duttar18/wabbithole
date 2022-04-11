@@ -51,13 +51,6 @@ async function fetchData() {
     console.log("User history turned on")
   }
 
-  
-
-
-
-
-
-
   let trunc_user_history = wabbit["user_history"]
   trunc_user_history = trunc_user_history.slice(Math.max(trunc_user_history.length - 5, 0))
   
