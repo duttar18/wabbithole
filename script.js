@@ -43,24 +43,10 @@ async function fetchData() {
 
 
   const wabbit = await readLocalStorage()
-  if (!wabbit["user_history_setting"]) {
-    wabbit["user_history"] = []
-    console.log("user history setting turned off")
-  }
-  else{
-    console.log("User history turned on")
-  }
 
-  
-
-
-
-
-
-
-  let trunc_user_history = wabbit["user_history"]
-  trunc_user_history = trunc_user_history.slice(Math.max(trunc_user_history.length - 5, 0))
-  
+  let user_history = wabbit["user_history"]
+  let trunc_user_history = user_history.slice(Math.max(user_history.length - 5, 0))
+  console.log(trunc_user_history)
   var send_data = {
     "user_history": trunc_user_history,
     "numResults": 5
@@ -72,7 +58,8 @@ async function fetchData() {
     // cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
     // credentials: 'same-origin', // include, *same-origin, omit
     headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Origin': 'https://127.0.0.1:5000'
     },
       redirect: 'follow', // manual, *follow, error
       referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
@@ -126,11 +113,19 @@ var hist_button = document.getElementById("histButton")
 
 hist_button.addEventListener('click', function() {
   this.classList.toggle("active");
+
   var content = document.getElementById("histSuggestions");
+  var settings_content = document.getElementById("settings")
+  var settings_button = document.getElementById("settingsButton")
+  
   if (content.style.display === "block") {
     content.style.display = "none";
   } else {
     content.style.display = "block";
+    settings_content.style.display = "none"
+    if (settings_button.classList.contains("active")) {
+      settings_button.classList.toggle("active")
+    }
   }
 });
 
@@ -138,12 +133,21 @@ hist_button.addEventListener('click', function() {
 var settings_button = document.getElementById("settingsButton")
 
 settings_button.addEventListener('click', function() {
+
   this.classList.toggle("active");
+  
   var content = document.getElementById("settings");
+  var hist_content = document.getElementById("histSuggestions")
+  var hist_button = document.getElementById("histButton")
+
   if (content.style.display === "block") {
     content.style.display = "none";
   } else {
     content.style.display = "block";
+    hist_content.style.display = "none"
+    if (hist_button.classList.contains("active")) {
+      hist_button.classList.toggle("active")
+    }
   }
 
 });

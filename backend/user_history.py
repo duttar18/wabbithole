@@ -41,7 +41,10 @@ class UserHistory:
             self.outgoing_links.update(set(out_links))
             #self.ingoing_links.update(parse_wiki_ingoing(link))
         # recommend links based on the current page's out_links
-        self.rec_links = Counter(set(out_links))
+        if len(user_history) == 0:
+            self.rec_links = Counter()
+        else:
+            self.rec_links = Counter(set(out_links))
         # remove self-loops
         self.already_visited_pages = set(l.split("#")[0] for l in self.already_visited_pages)
         for page in self.already_visited_pages:

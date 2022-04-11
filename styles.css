@@ -41,6 +41,13 @@ body {
     overflow: hidden;
 }
 
+.settings {
+    margin-bottom: 10px;
+    padding: 0 18px;
+    display: none;
+    overflow: hidden;
+}
+
 .histButton {
     background-color: #eee;
     color: #444;

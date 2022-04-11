@@ -23,7 +23,7 @@ cache = {}
 doc_freq_cache = Cache(linkcount_fetch)
 doc_freq_cache("Doi (identifier)", "Doi (identifier)")
 doc_freq_cache("ISBN (identifier)", "ISBN (identifier)")
-doc_freq_cache("ISSN (identifier)", "ISSN (identifier)")
+doc_freq_cache("ISSN (identifier)", "ISSN (identifier)")    
 doc_freq_cache("JSTOR (identifier)", "JSTOR (identifier)")
 doc_freq_cache("Bibcode (identifier)", "Bibcode (identifier)")
 doc_freq_cache("Hdl (identifier)", "Hdl (identifier)")
@@ -36,6 +36,11 @@ print("running!")
 def index():
     data = request.get_json(force=True)
     uh = [wiki_title_from_link(link) for link in data["user_history"]]
+    # catch empty user_history:
+    if len(uh) == 0:
+        response = flask.jsonify({'results': []})
+        return response
+
     user_history = UserHistory(uh,stop_words)
     baseline_scores = compute_outgoing_scores_baseline(user_history, stop_words)
     sorted_baseline_scores = [(k, v) for k, v in sorted(baseline_scores.items(), reverse=True, key=lambda item: item[1])]
