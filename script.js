@@ -1,9 +1,7 @@
-// chrome.storage.sync.get(['wabbit'], function(items) {
-//   if (items.wabbit){
-//     wabbit = JSON.parse(items.wabbit);
-
-//   }
-// });
+function removeDuplicates(arr) {
+  return arr.filter((item, 
+      index) => arr.indexOf(item) === index);
+}
 
 const readLocalStorage = async (key) => {
   return new Promise((resolve, reject) => {
@@ -20,6 +18,48 @@ const readLocalStorage = async (key) => {
     });
   });
 };
+
+async function getHistory() {
+  const wabbit = await readLocalStorage()
+  histSuggestions = document.getElementById("histSuggestions")
+  var timestamps = wabbit["timestamps"]
+  for(group of timestamps.reverse()){
+      var p = document.createElement('div');
+      p.setAttribute("class", "groupCard");
+      var b = document.createElement('button');
+      b.appendChild(document.createTextNode('set as history'));
+      b.classList.add("histButton");
+      var button_history = []
+      for(i of group){
+        button_history.push(wabbit.user_history[i[0]])
+      }
+      console.log(button_history)
+      button_history = button_history.reverse()
+      console.log(button_history)
+      button_history = removeDuplicates(button_history)
+      console.log(button_history)
+      b.id = button_history.join(" ")
+      console.log(button_history)
+      b.addEventListener("click", function() {
+        var user_history = wabbit.user_history 
+        // user_history = user_history.concat(button_history)
+        user_history = user_history.concat(this.id.split(" "))
+        wabbit.user_history=user_history
+        chrome.storage.local.set({'wabbit': JSON.stringify(wabbit)})
+      });
+      p.appendChild(b)
+      for(i of group){
+        var o = document.createElement('div');
+        o.setAttribute("class", "link");
+        title_unform = wabbit.user_history[i[0]].substring(30)
+        title = title_unform.replaceAll("_", " ")
+        title = title.split("#")[0]
+        o.innerHTML = '<a class="suggestion" href='+wabbit.user_history[i[0]]+' target="_blank">'+title+'</a>';
+        p.appendChild(o);
+      }
+      histSuggestions.appendChild(p)
+  }
+}
 
 async function toggleUserHistorySetting() {
   console.log("Here")
@@ -92,40 +132,8 @@ async function fetchData() {
   //     p.innerHTML = '<a class="suggestion" href='+suggestion+' target="_blank">'+title+'</a>';
   //     histSuggestions.appendChild(p);
   // }  
-  histSuggestions = document.getElementById("histSuggestions")
-  var timestamps = wabbit["timestamps"]
-  for(group of timestamps.reverse()){
-      var p = document.createElement('div');
-      p.setAttribute("class", "groupCard");
-      var b = document.createElement('button');
-      b.appendChild(document.createTextNode('set as history'));
-      b.classList.add("histButton");
-      var button_history = []
-      for(i of group){
-        button_history.push(wabbit.user_history[i[0]])
-      }
-      b.id = button_history.join(" ")
-      console.log(button_history)
-      b.addEventListener("click", function() {
-        var user_history = wabbit.user_history 
-        // user_history = user_history.concat(button_history)
-        user_history = user_history.concat(this.id.split(" "))
-        wabbit.user_history=user_history
-        chrome.storage.local.set({'wabbit': JSON.stringify(wabbit)})
-      });
-      p.appendChild(b)
-      for(i of group){
-        var o = document.createElement('div');
-        o.setAttribute("class", "link");
-        title_unform = wabbit.user_history[i[0]].substring(30)
-        title = title_unform.replaceAll("_", " ")
-        title = title.split("#")[0]
-        o.innerHTML = '<a class="suggestion" href='+wabbit.user_history[i[0]]+' target="_blank">'+title+'</a>';
-        p.appendChild(o);
-      }
-      histSuggestions.appendChild(p)
-  }
 }
+
 var get = function (key) {
   return window.localStorage ? window.localStorage[key] : null;
 }
@@ -142,6 +150,8 @@ function toggleUserHistory(item){
         item.className="buttonOn";
     }
 }
+
+
 
 var hist_button = document.getElementById("histButton")
 
@@ -167,7 +177,7 @@ hist_button.addEventListener('click', function() {
 var settings_button = document.getElementById("settingsButton")
 
 settings_button.addEventListener('click', function() {
-
+  
   this.classList.toggle("active");
   
   var content = document.getElementById("settings");
@@ -186,6 +196,7 @@ settings_button.addEventListener('click', function() {
 
 });
 
+getHistory();
 fetchData();
 document.getElementById("userHistoryButton").addEventListener("click", toggleUserHistory);
 

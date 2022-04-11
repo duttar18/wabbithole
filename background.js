@@ -58,6 +58,7 @@ async function getCurrentTab() {
       });
     return tab;
   }
+
   
 chrome.webNavigation.onCompleted.addListener(() => {
     console.info("foo")
