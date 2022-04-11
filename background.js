@@ -33,7 +33,7 @@ async function getCurrentTab() {
             // if (last.getTime() > now.getTime()){
             // console.log(last)
             var l = Date.parse(last[1])
-            if(Math.abs(now - l)/3600<10){
+            if(Math.abs(now - l)/3600<100){
               timestamps[timestamps.length-1].push([user_history.length-1,now.toString()])
             }
             else {
