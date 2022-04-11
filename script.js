@@ -85,6 +85,18 @@ async function fetchData() {
       p.innerHTML = '<a class="suggestion" href='+suggestion["link"]+' target="_blank">'+suggestion["name"]+'</a>';
       suggestions.appendChild(p);
   }
+
+  histSuggestions = document.getElementById("histSuggestions")
+  console.log(trunc_user_history)
+  for(suggestion of trunc_user_history.reverse()){
+      var p = document.createElement('div');
+      p.setAttribute("class", "suggestion_div");
+      title_unform = suggestion.substring(30)
+      title = title_unform.replaceAll("_", " ")
+      title = title.split("#")[0]
+      p.innerHTML = '<a class="suggestion" href='+suggestion+' target="_blank">'+title+'</a>';
+      histSuggestions.appendChild(p);
+  }  
 }
 var get = function (key) {
   return window.localStorage ? window.localStorage[key] : null;
@@ -102,5 +114,33 @@ function toggleUserHistory(item){
         item.className="buttonOn";
     }
 }
+
+var hist_button = document.getElementById("histButton")
+
+hist_button.addEventListener('click', function() {
+  this.classList.toggle("active");
+  var content = document.getElementById("histSuggestions");
+  if (content.style.display === "block") {
+    content.style.display = "none";
+  } else {
+    content.style.display = "block";
+  }
+});
+
+
+var settings_button = document.getElementById("settingsButton")
+
+settings_button.addEventListener('click', function() {
+  this.classList.toggle("active");
+  var content = document.getElementById("settings");
+  if (content.style.display === "block") {
+    content.style.display = "none";
+  } else {
+    content.style.display = "block";
+  }
+
+});
+
 fetchData();
+document.getElementById("userHistoryButton").addEventListener("click", toggleUserHistory);
 
