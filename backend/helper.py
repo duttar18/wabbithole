@@ -128,6 +128,8 @@ def score_coupling_similarity(user_history, target, cache, doc_freq_cache, stop_
         return None
         
     links, pageid, redirect = results
+    if redirect is not None:
+        print(target, redirect)
     if redirect is not None and redirect in user_history.already_visited_pages:
         # don't recommend this page, a redirected variant was in the user history
         # (only way to resolve redirects from outgoing-links is through this api call)
@@ -152,7 +154,7 @@ def score_coupling_similarity(user_history, target, cache, doc_freq_cache, stop_
             continue
         #page_name = link.split("/wiki/")[1]
         doc_freq = 0.001 if link not in doc_freq_cache else doc_freq_cache(link, link)
-
+        
         norm_qtf = (k3+1)*query_count / (k3 + query_count)
         norm_tf = count * (k1 + 1) / (count + k1*((1-b)+b*(doc_len/avg_doc_len)))
         tf = norm_tf * norm_qtf
@@ -163,15 +165,15 @@ def score_coupling_similarity(user_history, target, cache, doc_freq_cache, stop_
         score += tf * idf
     # union = sum(v for v in target_outgoing.values()) + sum(v for v in user_history.outgoing_links.values())
     # adjust score to favor links with more content
-    score += sum(v for v in target_outgoing.values())
+    score += 0.1 * sum(v for v in target_outgoing.values())
     return score
 
 def compute_outgoing_scores_baseline(user_history, stop_words):
     # composite score_link_similarity and score_link_text_similarity
     # (todo: this filters scores, will do re-ranking with coupling similarity, re-ranking with deeper searches, etc)
-    weight = 0.005 # to be tuned
+    weight = 0.05 # to be tuned
     outgoing_scores = dict()
-    for link in user_history.outgoing_links:
+    for link in user_history.rec_links:
         link_sim = score_link_similarity(user_history, link)
         text_sim = score_link_text_similarity(user_history, link, stop_words)
         outgoing_scores[link] = link_sim + weight * text_sim
