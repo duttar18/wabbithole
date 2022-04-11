@@ -25,11 +25,18 @@ async function getHistory() {
   histSuggestions = document.getElementById("histSuggestions")
   var timestamps = wabbit["timestamps"]
   console.log(timestamps)
+  console.log("AHAHAHH")
+  
+  histSuggestions = document.getElementById("histSuggestions")
+  while (histSuggestions.firstChild) {
+    histSuggestions.removeChild(histSuggestions.firstChild)
+  }
+
+
   for(group of timestamps.reverse()){
       if (group == null) {
         continue;
       }
-      console.log(group)
       var p = document.createElement('div');
       p.setAttribute("class", "groupCard");
       var b = document.createElement('button');
@@ -47,12 +54,9 @@ async function getHistory() {
         var timestamps = button_wabbit.timestamps 
         // user_history = user_history.concat(button_history)
         button_history = this.id.split(" ")
-        console.log(button_history)
         new_group = button_history.map(wikiLink =>
           [0, wikiLink, new Date()]
         )
-        console.log(new_group)
-        console.log(timestamps)
         timestamps.push(new_group)
         button_wabbit.timestamps = timestamps
         chrome.storage.local.set({'wabbit': JSON.stringify(button_wabbit)})
@@ -101,18 +105,15 @@ async function fetchData() {
 
 
   const wabbit = await readLocalStorage()
-  console.log(wabbit["user_history"])
   //let user_history = wabbit["user_history"]
   var groups = wabbit["timestamps"]
   groups = groups.filter(function(curElement) {
     return curElement !== null
   })
-  console.log(groups)
   var user_history2 = groups[groups.length - 1]
   var user_history = user_history2.map(function(curElement) {
     return curElement[1];
   })
-  console.log(user_history)
   //let trunc_user_history = user_history.slice(Math.max(user_history.length - 5, 0))
   
   var send_data = {
