@@ -31,55 +31,85 @@ async function getHistory() {
   while (histSuggestions.firstChild) {
     histSuggestions.removeChild(histSuggestions.firstChild)
   }
+  var createNewGroupButton = document.createElement('button');
+  createNewGroupButton.classList.add("createNewGroup");
+  createNewGroupButton.innerHTML = "Embark on a new journey"
+  histSuggestions.appendChild(createNewGroupButton)
+  createNewGroupButton.addEventListener("click", async function() {
+    var wabbit = await readLocalStorage()
+    var timestamps = wabbit.timestamps 
+    if (timestamps.length > 0 & timestamps[timestamps.length -1].length > 0) {
+      timestamps.push([])
+      wabbit.timestamps= timestamps
+      chrome.storage.local.set({'wabbit': JSON.stringify(wabbit)})
+      await getHistory()
+      // await fetchData()
+    }
+  });
 
-
+  var first_button = true;
   for(group of timestamps.reverse()){
       if (group == null) {
         continue;
       }
       var p = document.createElement('div');
       p.setAttribute("class", "groupCard");
-      var b = document.createElement('button');
-      b.appendChild(document.createTextNode('set as history'));
-      b.classList.add("histButton");
       var button_history = []
       for(i of group){
         button_history.push(i[1])
       }
       button_history = removeDuplicates(button_history)
-      b.id = button_history.join(" ")
+      if (first_button) {
+        var b = document.createElement('div')
+        b.id = button_history.join(" ")
+        var setAsHistoryDiv = document.createElement('div');
+        setAsHistoryDiv.setAttribute("class", "currentJourney")
+        setAsHistoryDiv.innerHTML = "Current journey"
+        b.appendChild(setAsHistoryDiv)
+        first_button = false;
+      } 
+      else {
+        var b = document.createElement('button');
+        b.id = button_history.join(" ")
+        var setAsHistoryDiv = document.createElement('div');
+        setAsHistoryDiv.setAttribute("class", "groupCardButton")
+        setAsHistoryDiv.innerHTML = "Set as current journey"
+        b.appendChild(setAsHistoryDiv);
+        b.classList.add("setHistButton");
+        b.addEventListener("click", async function() {
+          var button_wabbit = await readLocalStorage()
+          var timestamps = button_wabbit.timestamps 
+          // user_history = user_history.concat(button_history)
+          button_history = this.id.split(" ")
+          new_group = button_history.map(wikiLink =>
+            [0, wikiLink, new Date()]
+          )
+          timestamps.push(new_group)
+          button_wabbit.timestamps = timestamps
+          chrome.storage.local.set({'wabbit': JSON.stringify(button_wabbit)})
+          var loading = document.getElementById("loading")
+          loading.style.display = ''
+          suggestions = document.getElementById("suggestions")
+          while (suggestions.firstChild) {
+            suggestions.removeChild(suggestions.firstChild)
+          }
+          await getHistory()
+          await fetchData()
+        });
+      }
 
-      b.addEventListener("click", async function() {
-        var button_wabbit = await readLocalStorage()
-        var timestamps = button_wabbit.timestamps 
-        // user_history = user_history.concat(button_history)
-        button_history = this.id.split(" ")
-        new_group = button_history.map(wikiLink =>
-          [0, wikiLink, new Date()]
-        )
-        timestamps.push(new_group)
-        button_wabbit.timestamps = timestamps
-        chrome.storage.local.set({'wabbit': JSON.stringify(button_wabbit)})
-        var loading = document.getElementById("loading")
-        loading.style.display = ''
-        suggestions = document.getElementById("suggestions")
-        while (suggestions.firstChild) {
-          suggestions.removeChild(suggestions.firstChild)
-        }
-        await getHistory()
-        await fetchData()
-      });
-
-      p.appendChild(b)
       for(link of button_history.reverse()){
         var o = document.createElement('div');
         o.setAttribute("class", "link");
         title_unform = link.substring(30)
         title = title_unform.replaceAll("_", " ")
         title = title.split("#")[0]
+        title = decodeURIComponent(title)
         o.innerHTML = '<a class="suggestion" href='+link+' target="_blank">'+title+'</a>';
         p.appendChild(o);
       }
+      
+      p.appendChild(b)
       histSuggestions.appendChild(p)
   }
 }
@@ -188,23 +218,24 @@ hist_button.addEventListener('click', function() {
   this.classList.toggle("active");
 
   var content = document.getElementById("histSuggestions");
-  var settings_content = document.getElementById("settings")
-  var settings_button = document.getElementById("settingsButton")
+  //var settings_content = document.getElementById("settings")
+  //var settings_button = document.getElementById("settingsButton")
   
   if (content.style.display === "block") {
     content.style.display = "none";
   } else {
     content.style.display = "block";
-    settings_content.style.display = "none"
+    /*settings_content.style.display = "none"
     if (settings_button.classList.contains("active")) {
       settings_button.classList.toggle("active")
-    }
+    }*/
   }
 });
 
 
 var settings_button = document.getElementById("settingsButton")
 
+/*
 settings_button.addEventListener('click', function() {
   
   this.classList.toggle("active");
@@ -224,8 +255,8 @@ settings_button.addEventListener('click', function() {
   }
 
 });
-
+*/
 getHistory();
 fetchData();
-document.getElementById("userHistoryButton").addEventListener("click", toggleUserHistory);
+//document.getElementById("userHistoryButton").addEventListener("click", toggleUserHistory);
 

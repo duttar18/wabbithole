@@ -29,17 +29,24 @@ async function getCurrentTab() {
             console.log("HEre")
             var now = new Date();
             var last_group = timestamps[timestamps.length-1]
-            var last = last_group[last_group.length-1]
-            // if (last.getTime() > now.getTime()){
-            // console.log(last)
-            var l = Date.parse(last[2])
-            var group_datum = [user_history.length-1, tab.url, now.toString()]
-            if(Math.abs(now - l)/3600<100){
-              timestamps[timestamps.length-1].push(group_datum)
+            if (last_group.length>0){
+              var last = last_group[last_group.length-1]
+              // if (last.getTime() > now.getTime()){
+              // console.log(last)
+              var l = Date.parse(last[2])
+              var group_datum = [user_history.length-1, tab.url, now.toString()]
+              if(Math.abs(now - l)/3600<100){
+                timestamps[timestamps.length-1].push(group_datum)
+              }
+              else {
+                timestamps.push([group_datum])
+              }
             }
             else {
-              timestamps.push([group_datum])
+              var group_datum = [user_history.length-1, tab.url, now.toString()]
+              timestamps[timestamps.length-1].push(group_datum)
             }
+            
           }
           else {
             var now = new Date()
