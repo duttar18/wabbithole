@@ -10,27 +10,40 @@ const readLocalStorage = async (key) => {
         resolve({
           "user_history": [],
           "user_history_setting": false,
-          "timestamps": []
+          "timestamps": [],
+          "struck": [],
         })
       } else {
         const wabbit = JSON.parse(result['wabbit'])
+        if(!wabbit.struck){
+          wabbit.struck= []
+        }
         resolve(wabbit);
       }
     });
   });
 };
 
+async function setHistory(wabbit){
+  chrome.storage.local.set({'wabbit': JSON.stringify(wabbit)})
+}
+
 async function getHistory() {
   const wabbit = await readLocalStorage()
   histSuggestions = document.getElementById("histSuggestions")
   var timestamps = wabbit["timestamps"]
-  console.log(timestamps)
-  console.log("AHAHAHH")
+  var struck = new Set(wabbit.struck)
+  console.log(struck)
   
   histSuggestions = document.getElementById("histSuggestions")
   while (histSuggestions.firstChild) {
     histSuggestions.removeChild(histSuggestions.firstChild)
   }
+  var note = document.createElement('p');
+  note.innerHTML = "* Note: Your suggestions based on your current journey. Click a title to not include it in the recommendation algorithm."
+  note.classList.add("note")
+  histSuggestions.appendChild(note)
+
   var createNewGroupButton = document.createElement('button');
   createNewGroupButton.classList.add("createNewGroup");
   createNewGroupButton.innerHTML = "Embark on a new journey"
@@ -67,13 +80,14 @@ async function getHistory() {
         setAsHistoryDiv.innerHTML = "Current journey"
         b.appendChild(setAsHistoryDiv)
         first_button = false;
+        p.classList.add("firstCard");
       } 
       else {
         var b = document.createElement('button');
         b.id = button_history.join(" ")
         var setAsHistoryDiv = document.createElement('div');
         setAsHistoryDiv.setAttribute("class", "groupCardButton")
-        setAsHistoryDiv.innerHTML = "Set as current journey"
+        setAsHistoryDiv.innerHTML = "Continue on this previous journey"
         b.appendChild(setAsHistoryDiv);
         b.classList.add("setHistButton");
         b.addEventListener("click", async function() {
@@ -84,6 +98,9 @@ async function getHistory() {
           new_group = button_history.map(wikiLink =>
             [0, wikiLink, new Date()]
           )
+          if (timestamps[timestamps.length-1].length==0){
+            timestamps.pop();
+          }
           timestamps.push(new_group)
           button_wabbit.timestamps = timestamps
           chrome.storage.local.set({'wabbit': JSON.stringify(button_wabbit)})
@@ -97,7 +114,6 @@ async function getHistory() {
           await fetchData()
         });
       }
-
       for(link of button_history.reverse()){
         var o = document.createElement('div');
         o.setAttribute("class", "link");
@@ -105,7 +121,32 @@ async function getHistory() {
         title = title_unform.replaceAll("_", " ")
         title = title.split("#")[0]
         title = decodeURIComponent(title)
-        o.innerHTML = '<a class="suggestion" href='+link+' target="_blank">'+title+'</a>';
+
+        var m = document.createElement('p')
+        m.innerHTML = title
+        m.id = link
+        m.classList.add("title")
+        if(struck.has(link)){
+          m.classList.add("struck")
+        }
+        m.addEventListener("click" , async function () {
+          var wab = await readLocalStorage()
+          var struck2 = new Set(wab.struck)
+          if(struck2.has(this.id)){
+            struck2.delete(this.id)
+          }
+          else{
+            struck2.add(this.id);
+          }
+          wab.struck = Array.from(struck2)
+          await setHistory(wab)
+          await getHistory()
+        })      
+        var m2 = document.createElement('div')
+        m2.innerHTML = '<a class="suggestion" href='+link+' target="_blank"> 🔗</a>'
+
+        o.appendChild(m)
+        o.appendChild(m2)
         p.appendChild(o);
       }
       
@@ -135,7 +176,6 @@ async function fetchData() {
 
 
   const wabbit = await readLocalStorage()
-  //let user_history = wabbit["user_history"]
   var groups = wabbit["timestamps"]
   groups = groups.filter(function(curElement) {
     return curElement !== null
@@ -144,13 +184,15 @@ async function fetchData() {
   var user_history = user_history2.map(function(curElement) {
     return curElement[1];
   })
-  //let trunc_user_history = user_history.slice(Math.max(user_history.length - 5, 0))
+  var struck3 = new Set(wabbit.struck)
+user_history = user_history.filter(word => !struck3.has(word));
   
   var send_data = {
     "user_history": user_history,
     "numResults": 5
   }
 
+  console.log("reccomendations based on",send_data)
   const data = await fetch("http://127.0.0.1:5000/rankedResults", {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
     credentials: 'include',
@@ -159,7 +201,7 @@ async function fetchData() {
     // credentials: 'same-origin', // include, *same-origin, omit
     headers: {
         'Content-Type': 'application/json',
-        'Origin': 'http://127.0.0.1:5000',
+        'Origin': 'http://127.0.0.1:5000/',
     },
       redirect: 'follow', // manual, *follow, error
       referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url

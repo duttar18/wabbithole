@@ -12,8 +12,9 @@ async function getCurrentTab() {
     var wabbit = {
         "user_history": [],
         "timestamps": [],
+        "struck": [],
     }
-    console.log("HI")
+    // console.log("HI")
     chrome.storage.local.get(['wabbit'], function(items) {
         // console.log("background")
         if (items.wabbit){
@@ -23,10 +24,9 @@ async function getCurrentTab() {
           wabbit["user_history"] = user_history
           
           var timestamps = JSON.parse(items.wabbit)["timestamps"];
-          console.log(timestamps.length)
-
+          // console.log(timestamps.length)
+          console.log("timestamps",timestamps)
           if(timestamps.length>0){
-            console.log("HEre")
             var now = new Date();
             var last_group = timestamps[timestamps.length-1]
             if (last_group.length>0){
@@ -35,6 +35,7 @@ async function getCurrentTab() {
               // console.log(last)
               var l = Date.parse(last[2])
               var group_datum = [user_history.length-1, tab.url, now.toString()]
+              console.log("HERE")
               if(Math.abs(now - l)/3600<100){
                 timestamps[timestamps.length-1].push(group_datum)
               }
@@ -52,9 +53,9 @@ async function getCurrentTab() {
             var now = new Date()
             timestamps = [[[user_history.length-1, tab.url, now.toString()]]]
           }
-          console.log(timestamps)
+          // console.log(timestamps)
           wabbit["timestamps"] = timestamps
-
+          // wabbit.struck = []
           chrome.storage.local.set({'wabbit': JSON.stringify(wabbit)});
         }
         else {
@@ -70,6 +71,7 @@ async function getCurrentTab() {
   
 chrome.webNavigation.onCompleted.addListener(() => {
     console.info("foo")
+    console.log("HERE")
     const tab = getCurrentTab()
     //console.info(tab);
 }, filter);
