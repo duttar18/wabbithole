@@ -171,7 +171,7 @@ nav-link:hover {
     padding: 5px;
     width: auto;
     border: none;
-text-align: left;
+    text-align: left;
     outline: none;
     font-size: 12px;
     border: 0.5px solid rgb(52, 52, 52);
@@ -201,4 +201,13 @@ text-align: left;
     display: flex;
     flex-direction: row;
     vertical-align: middle;
+    cursor: pointer;
+}
+#logo{
+    width: 200px;
+    height: auto;
+}
+#subtitle{
+    width: 150px;
+    height: auto;
 }

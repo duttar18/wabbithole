@@ -24,6 +24,19 @@ const readLocalStorage = async (key) => {
   });
 };
 
+const blacklist = [
+  "Main Page",
+  "Help:",
+  "Special:",
+  "Portal:",
+  "Talk:",
+  "Template:",
+  "Template talk:",
+  "User talk:",
+  "Wikipedia:",
+  "File:"
+]; 
+
 async function setHistory(wabbit){
   chrome.storage.local.set({'wabbit': JSON.stringify(wabbit)})
 }
@@ -60,6 +73,7 @@ async function getHistory() {
     }
   });
 
+  
   var first_button = true;
   for(group of timestamps.reverse()){
       if (group == null) {
@@ -121,7 +135,16 @@ async function getHistory() {
         title = title_unform.replaceAll("_", " ")
         title = title.split("#")[0]
         title = decodeURIComponent(title)
-
+        var cancel = false
+        for(word of blacklist){
+          if(title.includes(word)){
+            cancel = true
+          }
+        }
+        if(cancel){
+          console.log(title)
+          continue;
+        }
         var m = document.createElement('p')
         m.innerHTML = title
         m.id = link
