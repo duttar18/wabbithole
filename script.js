@@ -34,7 +34,8 @@ const blacklist = [
   "Template talk:",
   "User talk:",
   "Wikipedia:",
-  "File:"
+  "File:",
+  "Category:"
 ]; 
 
 async function setHistory(wabbit){
@@ -116,6 +117,7 @@ async function getHistory() {
             timestamps.pop();
           }
           timestamps.push(new_group)
+          url = new_group[new_group.length - 1]["1"]
           button_wabbit.timestamps = timestamps
           chrome.storage.local.set({'wabbit': JSON.stringify(button_wabbit)})
           var loading = document.getElementById("loading")
@@ -124,6 +126,7 @@ async function getHistory() {
           while (suggestions.firstChild) {
             suggestions.removeChild(suggestions.firstChild)
           }
+          window.open(url)
           await getHistory()
           await fetchData()
         });
@@ -164,6 +167,13 @@ async function getHistory() {
           wab.struck = Array.from(struck2)
           await setHistory(wab)
           await getHistory()
+          var loading = document.getElementById("loading")
+          loading.style.display = ''
+          suggestions = document.getElementById("suggestions")
+          while (suggestions.firstChild) {
+            suggestions.removeChild(suggestions.firstChild)
+          }
+          await fetchData()
         })      
         var m2 = document.createElement('div')
         m2.innerHTML = '<a class="suggestion" href='+link+' target="_blank"> 🔗</a>'
